@@ -17,7 +17,7 @@ FROM debian:jessie
 MAINTAINER Drasko DRASKOVIC <drasko.draskovic@mainflux.com>
 
 # unrar is non-free
-RUN "echo" "deb http://http.us.debian.org/debian testing non-free" >> /etc/apt/sources.list
+RUN "echo" "deb http://http.us.debian.org/debian jessie non-free" >> /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y \
     autoconf \
@@ -42,28 +42,38 @@ RUN apt-get update && apt-get install -y \
 	texinfo \
 	unrar \
 	unzip \
-	wget \
-    sudo
-
-# Change root password to something known
-RUN echo "root:uiota" | chpasswd
+    vim \
+	wget
 
 # Adduser `uiota`
 RUN adduser --disabled-password --gecos "" uiota && usermod -a -G dialout uiota
-RUN echo "uiota ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-RUN mkdir /uiota && chown -R uiota:uiota /uiota
+# Create our main work directory
+RUN mkdir /uiota
 
+# Create dir that will be used for staging our apps
+RUN mkdir /uiota/staging
+
+# Create dir that will be used for firmware output
+RUN mkdir /uiota/firmware
+
+# My heart belongs to daddy
+RUN chown -R uiota:uiota /uiota
+
+# Crosstool demands non-root user for compilation
 USER uiota
 
+# esp-open-sdk
 RUN cd /uiota && git clone --recursive https://github.com/pfalcon/esp-open-sdk.git
-
 RUN cd /uiota/esp-open-sdk && make STANDALONE=n
 
+# Get Expressif source examples
 RUN cd /uiota && git clone https://github.com/esp8266/source-code-examples.git
 
+# esptool-ck
 RUN cd /uiota && git clone https://github.com/tommie/esptool-ck.git && cd esptool-ck && make
 
+# Export ENV
 ENV PATH /uiota/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 ENV XTENSA_TOOLS_ROOT /uiota/esp-open-sdk/xtensa-lx106-elf/bin
 ENV SDK_BASE /uiota/esp-open-sdk/esp_iot_sdk_v1.4.0
@@ -75,10 +85,14 @@ RUN cd /uiota/ && git clone --recursive https://github.com/Superhouse/esp-open-r
 # Espruino
 RUN cd /uiota/ && git clone https://github.com/espruino/Espruino.git
 ENV ESP8266_SDK_ROOT $SDK_BASE
+ENV ESP8266_BOARD 1
+ENV FLASH_4MB 1
+ENV COMPORT /dev/ttyUSB0
 
 # Micropython
 RUN cd /uiota/ && git clone https://github.com/micropython/micropython.git
 
+# Back to root
 USER root
 
 CMD (cd /uiota/ && /bin/bash)
