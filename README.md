@@ -2,6 +2,10 @@
 Dockerfile for uIota board cross-build system
 
 ## Usage
+Create container:
+```
+docker run -d --name uiotaCont projectiota/uiota-esp8266-docker
+```
 
 Compile:
 ```
