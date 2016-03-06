@@ -76,7 +76,7 @@ RUN cd /uiota && git clone https://github.com/tommie/esptool-ck.git && cd esptoo
 # Export ENV
 ENV PATH /uiota/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 ENV XTENSA_TOOLS_ROOT /uiota/esp-open-sdk/xtensa-lx106-elf/bin
-ENV SDK_BASE /uiota/esp-open-sdk/esp_iot_sdk_v1.4.0
+ENV SDK_BASE /uiota/esp-open-sdk/esp_iot_sdk_v1.5.2
 ENV FW_TOOL /uiota/esptool-ck/esptool
 
 # esp-open-rtos
